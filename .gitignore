@@ -1,0 +1,40 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.eggs/
+.venv/
+venv/
+ENV/
+env/
+pip-wheel-metadata/
+
+# --- FastAPI / Uvicorn ---
+*.log
+
+# --- Docker ---
+**/.dockerignore
+docker-compose.override.yml
+
+# --- Node / frontend tooling (future-proofing) ---
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- OS / Editor ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# --- Runtime / state ---
+.env
+.env.*
+.cache/
+tmp/
