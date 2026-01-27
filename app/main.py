@@ -6,7 +6,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any, Dict, List, Tuple
 
 import docker
-from docker.errors import APIError, DockerException
+from docker.errors import APIError, DockerException, NotFound
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -232,3 +232,36 @@ def list_stacks() -> Dict[str, Any]:
         st["containers"] = sorted(st["containers"], key=lambda x: (x.get("service") or "", x["name"]))
 
     return {"stacks": ordered, "updated_at": updated_at, "cache_error": last_error}
+
+
+
+@app.post("/api/stacks/{project}/restart")
+def restart_stack(project: str) -> dict:
+    """
+    Restarts all containers belonging to a Compose project.
+    """
+    try:
+        client = _docker_client()
+        containers = client.containers.list(all=True)
+    except DockerException as e:
+        raise HTTPException(status_code=500, detail=f"Docker not reachable: {e}")
+
+    target = [c for c in containers if _is_compose_container(c) and _compose_project(c) == project]
+    if not target:
+        raise HTTPException(status_code=404, detail=f"No containers found for project '{project}'")
+
+    restarted = []
+    errors = []
+
+    def _sort_key(c):
+        labels = c.labels or {}
+        return (labels.get("com.docker.compose.service") or "", c.name)
+
+    for c in sorted(target, key=_sort_key):
+        try:
+            c.restart(timeout=10)
+            restarted.append(c.name)
+        except (APIError, NotFound, Exception) as e:
+            errors.append(f"{c.name}: {e}")
+
+    return {"project": project, "restarted": restarted, "errors": errors}
