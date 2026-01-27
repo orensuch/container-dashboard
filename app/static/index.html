@@ -1,0 +1,173 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Compose Stack Dashboard</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 16px; }
+    header { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+    button { padding: 8px 12px; cursor:pointer; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 12px; margin-top: 12px; }
+    .card { border: 1px solid #ddd; border-radius: 10px; padding: 12px; }
+    .title { display:flex; justify-content:space-between; align-items:center; gap: 8px; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; font-size: 12px; }
+    .muted { color: #666; font-size: 12px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; border-top: 1px solid #eee; padding: 6px; font-size: 13px; }
+    th { font-size: 12px; color:#444; }
+    .right { text-align: right; }
+    .pill { display:inline-block; padding:2px 8px; border-radius: 999px; background:#f2f2f2; font-size:12px; }
+    .error { color: #b00020; }
+  </style>
+</head>
+<body>
+  <header>
+    <h2 style="margin:0;">Compose Stack Dashboard</h2>
+    <span class="muted" id="status">Loading…</span>
+    <button id="refreshBtn">Refresh</button>
+    <label class="muted">Auto-refresh
+      <select id="autoRefresh">
+        <option value="0">off</option>
+        <option value="3">3s</option>
+        <option value="5" selected>5s</option>
+        <option value="10">10s</option>
+      </select>
+    </label>
+  </header>
+
+  <div class="grid" id="grid"></div>
+
+<script>
+  const grid = document.getElementById('grid');
+  const statusEl = document.getElementById('status');
+  const refreshBtn = document.getElementById('refreshBtn');
+  const autoRefresh = document.getElementById('autoRefresh');
+
+  function fmtBytes(n) {
+    if (n == null) return '-';
+    const units = ['B','KB','MB','GB','TB'];
+    let x = Number(n);
+    let i = 0;
+    while (x >= 1024 && i < units.length - 1) { x /= 1024; i++; }
+    return `${x.toFixed(i === 0 ? 0 : 1)} ${units[i]}`;
+  }
+
+  function fmtPct(x) {
+    if (x == null) return '-';
+    return `${Number(x).toFixed(1)}%`;
+  }
+
+  function escapeHtml(s) {
+    return String(s ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+  }
+
+  async function fetchStacks() {
+    statusEl.textContent = 'Loading…';
+    statusEl.className = 'muted';
+    try {
+      const res = await fetch('/api/stacks');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      render(data.stacks || []);
+      const dt = new Date((data.updated_at || Date.now()/1000) * 1000);
+      statusEl.textContent = `Updated: ${dt.toLocaleString()}`;
+    } catch (e) {
+      statusEl.textContent = `Error: ${e}`;
+      statusEl.className = 'muted error';
+      grid.innerHTML = '';
+    }
+  }
+
+  async function restartProject(project) {
+    if (!confirm(`Restart stack "${project}"? This restarts all containers in that compose project.`)) return;
+
+    statusEl.textContent = `Restarting ${project}…`;
+    statusEl.className = 'muted';
+
+    try {
+      const res = await fetch(`/api/stacks/${encodeURIComponent(project)}/restart`, { method: 'POST' });
+      const out = await res.json();
+      if (!res.ok) throw new Error(out.detail || `HTTP ${res.status}`);
+      const errCount = (out.errors || []).length;
+      alert(`Restarted: ${(out.restarted || []).length} container(s)\nErrors: ${errCount}`);
+    } catch (e) {
+      alert(`Restart failed: ${e}`);
+    } finally {
+      await fetchStacks();
+    }
+  }
+
+  function render(stacks) {
+    if (!stacks.length) {
+      grid.innerHTML = `<div class="card">No Compose-labeled containers found.</div>`;
+      return;
+    }
+
+    grid.innerHTML = stacks.map(s => {
+      const t = s.totals || {};
+      const containers = s.containers || [];
+      const memLine = t.mem_limit ? `${fmtBytes(t.mem_usage)} / ${fmtBytes(t.mem_limit)}` : fmtBytes(t.mem_usage);
+
+      return `
+        <div class="card">
+          <div class="title">
+            <div>
+              <div><strong>${escapeHtml(s.project)}</strong> <span class="pill">${containers.length} container(s)</span></div>
+              <div class="muted">CPU Σ: ${fmtPct(t.cpu_percent)} · Mem: ${memLine}</div>
+              <div class="muted">Net: ↓ ${fmtBytes(t.net_rx)} · ↑ ${fmtBytes(t.net_tx)} · Disk: R ${fmtBytes(t.blk_read)} · W ${fmtBytes(t.blk_write)}</div>
+            </div>
+            <div>
+              <button onclick="restartProject('${escapeHtml(s.project)}')">Restart stack</button>
+            </div>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Service</th>
+                <th>Name</th>
+                <th>Status</th>
+                <th class="right">CPU</th>
+                <th class="right">Mem</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${containers.map(c => {
+                const st = c.stats;
+                const mem = st?.mem_limit ? `${fmtBytes(st.mem_usage)} / ${fmtBytes(st.mem_limit)}` : fmtBytes(st?.mem_usage);
+                return `
+                  <tr>
+                    <td>${escapeHtml(c.service || '')}</td>
+                    <td class="mono">${escapeHtml(c.name)}</td>
+                    <td>${escapeHtml(c.status)}</td>
+                    <td class="right">${st ? fmtPct(st.cpu_percent) : '-'}</td>
+                    <td class="right">${st ? mem : '-'}</td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }).join('');
+  }
+
+  refreshBtn.addEventListener('click', fetchStacks);
+
+  let timer = null;
+  function setAutoRefresh() {
+    if (timer) clearInterval(timer);
+    const sec = Number(autoRefresh.value);
+    if (sec > 0) timer = setInterval(fetchStacks, sec * 1000);
+  }
+  autoRefresh.addEventListener('change', setAutoRefresh);
+
+  // Expose for inline onclick
+  window.restartProject = restartProject;
+
+  setAutoRefresh();
+  fetchStacks();
+</script>
+</body>
+</html>

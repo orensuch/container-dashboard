@@ -1,0 +1,12 @@
+services:
+  dashboard:
+    build: ./app
+    ports:
+      - "8011:8000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      - ./app:/app:rw  
+    environment:
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    restart: unless-stopped
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
