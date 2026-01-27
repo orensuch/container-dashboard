@@ -1,94 +1,415 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Compose Stack Dashboard</title>
   <style>
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 16px; }
-    header { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
-    button { padding: 8px 12px; cursor:pointer; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 12px; margin-top: 12px; }
-    .card { border: 1px solid #ddd; border-radius: 10px; padding: 12px; }
-    .title { display:flex; justify-content:space-between; align-items:center; gap: 8px; }
-    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; font-size: 12px; }
-    .muted { color: #666; font-size: 12px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
-    th, td { text-align: left; border-top: 1px solid #eee; padding: 6px; font-size: 13px; }
-    th { font-size: 12px; color:#444; }
-    .right { text-align: right; }
-    .pill { display:inline-block; padding:2px 8px; border-radius: 999px; background:#f2f2f2; font-size:12px; }
-    .error { color: #b00020; }
+    :root{
+      --bg: #0f1115;
+      --panel: #171a21;
+      --panel-2: #1c2030;
+      --text: #e7eaf0;
+      --muted: #a8b0c0;
+      --border: rgba(255,255,255,0.08);
+      --shadow: 0 10px 30px rgba(0,0,0,0.35);
+      --radius: 16px;
+
+      --ok: #48d18f;
+      --warn: #ffd166;
+      --bad: #ff5c7a;
+      --accent: #7aa2ff;
+      --accent2: #9bdbff;
+
+      --chip: rgba(122,162,255,0.12);
+      --chip-border: rgba(122,162,255,0.25);
+    }
+
+    * { box-sizing: border-box; }
+    body{
+      margin: 0;
+      background: radial-gradient(1200px 600px at 20% 0%, rgba(122,162,255,0.18), transparent 60%),
+                  radial-gradient(900px 500px at 90% 30%, rgba(155,219,255,0.12), transparent 55%),
+                  var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    .wrap{ max-width: 1180px; margin: 0 auto; padding: 18px; }
+
+    header{
+      display:flex; align-items:center; justify-content:space-between;
+      gap: 12px; flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .brand{
+      display:flex; align-items:center; gap: 12px;
+    }
+
+    .logo{
+      width: 38px; height: 38px; border-radius: 12px;
+      background: linear-gradient(135deg, rgba(122,162,255,0.95), rgba(155,219,255,0.95));
+      box-shadow: 0 10px 25px rgba(122,162,255,0.25);
+      display:grid; place-items:center;
+      color: #0b0d12;
+      font-weight: 800;
+    }
+
+    h1{ font-size: 16px; margin: 0; letter-spacing: 0.2px; }
+    .subtitle{ margin: 0; color: var(--muted); font-size: 12px; }
+
+    .toolbar{
+      display:flex; gap: 10px; align-items:center; flex-wrap: wrap;
+    }
+
+    .pill{
+      display:inline-flex; align-items:center; gap: 8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    button{
+      appearance:none;
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+      color: var(--text);
+      padding: 9px 12px;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.25);
+      transition: transform 0.08s ease, border-color 0.2s ease, background 0.2s ease;
+      font-weight: 600;
+      font-size: 13px;
+    }
+    button:hover{ transform: translateY(-1px); border-color: rgba(122,162,255,0.35); }
+    button:active{ transform: translateY(0px); }
+
+    select, input{
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+      color: var(--text);
+      padding: 9px 10px;
+      border-radius: 12px;
+      outline: none;
+      font-size: 13px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 14px;
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .cardHeader{
+      padding: 14px 14px 10px 14px;
+      display:flex; justify-content:space-between; gap: 12px; align-items:flex-start;
+    }
+
+    .stackTitle{
+      display:flex; flex-direction:column; gap: 6px;
+      min-width: 0;
+    }
+
+    .stackName{
+      display:flex; align-items:center; gap: 10px;
+      min-width: 0;
+    }
+
+    .stackName strong{
+      font-size: 14px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      letter-spacing: 0.2px;
+    }
+
+    .chip{
+      display:inline-flex; align-items:center; gap:6px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: var(--chip);
+      border: 1px solid var(--chip-border);
+      color: var(--accent2);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .metaRow{
+      display:flex; gap: 10px; flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .metaRow span{
+      display:inline-flex; gap: 6px; align-items:center;
+      padding: 4px 8px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .cardBody{
+      padding: 12px 14px 14px 14px;
+      display:grid;
+      grid-template-columns: 160px 1fr;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .gauges{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .gaugeRow{
+      display:grid;
+      grid-template-columns: 76px 1fr;
+      gap: 12px;
+      align-items:center;
+    }
+
+    .gaugeLabel{
+      display:flex; flex-direction:column; gap: 2px;
+    }
+    .gaugeLabel .k{ font-size: 12px; color: var(--muted); }
+    .gaugeLabel .v{ font-size: 13px; font-weight: 700; }
+
+    .ioGrid{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 10px;
+    }
+
+    .metric{
+      padding: 10px 10px;
+      border-radius: 14px;
+      background: rgba(12,14,18,0.45);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .metric .k{ font-size: 12px; color: var(--muted); display:flex; align-items:center; gap:6px; }
+    .metric .v{ margin-top: 6px; font-weight: 800; font-size: 14px; letter-spacing: 0.2px; }
+
+    .divider{
+      height: 1px;
+      background: rgba(255,255,255,0.06);
+      margin: 0 14px;
+    }
+
+    .tableWrap{ padding: 10px 14px 14px 14px; }
+    table{
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    th, td{
+      padding: 8px 8px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      vertical-align: middle;
+    }
+    th{ color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; }
+    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; font-size: 12px; color: rgba(231,234,240,0.92); }
+    .right{ text-align: right; }
+    .statusDot{
+      display:inline-block; width: 8px; height: 8px; border-radius: 50%;
+      margin-right: 8px; vertical-align: middle;
+      background: rgba(255,255,255,0.2);
+    }
+    .running{ background: var(--ok); box-shadow: 0 0 0 3px rgba(72,209,143,0.15); }
+    .stopped{ background: rgba(255,255,255,0.28); }
+    .restarting{ background: var(--warn); box-shadow: 0 0 0 3px rgba(255,209,102,0.14); }
+
+    .empty{
+      padding: 16px;
+      color: var(--muted);
+      border: 1px dashed rgba(255,255,255,0.14);
+      border-radius: var(--radius);
+      text-align:center;
+    }
+
+    /* Small screens */
+    @media (max-width: 520px){
+      .cardBody{ grid-template-columns: 1fr; }
+      .gaugeRow{ grid-template-columns: 76px 1fr; }
+    }
   </style>
 </head>
 <body>
-  <header>
-    <h2 style="margin:0;">Compose Stack Dashboard</h2>
-    <span class="muted" id="status">Loading…</span>
-    <button id="refreshBtn">Refresh</button>
-    <label class="muted">Auto-refresh
-      <select id="autoRefresh">
-        <option value="0">off</option>
-        <option value="3">3s</option>
-        <option value="5" selected>5s</option>
-        <option value="10">10s</option>
-      </select>
-    </label>
-  </header>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo">CD</div>
+        <div>
+          <h1>Compose Dashboard</h1>
+          <p class="subtitle">Home Assistant–style stack overview + restart</p>
+        </div>
+      </div>
 
-  <div class="grid" id="grid"></div>
+      <div class="toolbar">
+        <div class="pill" id="statusPill">Loading…</div>
+        <input id="filter" placeholder="Filter stacks…" />
+        <select id="autoRefresh">
+          <option value="0">Auto: off</option>
+          <option value="2">Auto: 2s</option>
+          <option value="5" selected>Auto: 5s</option>
+          <option value="10">Auto: 10s</option>
+        </select>
+        <button id="refreshBtn">Refresh</button>
+      </div>
+    </header>
+
+    <div class="grid" id="grid"></div>
+  </div>
 
 <script>
   const grid = document.getElementById('grid');
-  const statusEl = document.getElementById('status');
+  const statusPill = document.getElementById('statusPill');
   const refreshBtn = document.getElementById('refreshBtn');
   const autoRefresh = document.getElementById('autoRefresh');
+  const filterEl = document.getElementById('filter');
 
   function fmtBytes(n) {
-    if (n == null) return '-';
-    const units = ['B','KB','MB','GB','TB'];
+    if (n == null) return '—';
+    const units = ['B','KB','MB','GB','TB','PB'];
     let x = Number(n);
+    if (!isFinite(x)) return '—';
     let i = 0;
     while (x >= 1024 && i < units.length - 1) { x /= 1024; i++; }
-    return `${x.toFixed(i === 0 ? 0 : 1)} ${units[i]}`;
+    const dp = i === 0 ? 0 : 1;
+    return `${x.toFixed(dp)} ${units[i]}`;
   }
 
   function fmtPct(x) {
-    if (x == null) return '-';
+    if (x == null || !isFinite(Number(x))) return '—';
     return `${Number(x).toFixed(1)}%`;
   }
 
+  function clamp(v, lo, hi){ return Math.min(hi, Math.max(lo, v)); }
+
   function escapeHtml(s) {
-    return String(s ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+    return String(s ?? '')
+      .replaceAll('&','&amp;')
+      .replaceAll('<','&lt;')
+      .replaceAll('>','&gt;')
+      .replaceAll('"','&quot;')
+      .replaceAll("'","&#039;");
+  }
+
+  function colorForPct(p){
+    // HA-ish: green < 60, warn < 85, red otherwise
+    if (p < 60) return getComputedStyle(document.documentElement).getPropertyValue('--ok').trim();
+    if (p < 85) return getComputedStyle(document.documentElement).getPropertyValue('--warn').trim();
+    return getComputedStyle(document.documentElement).getPropertyValue('--bad').trim();
+  }
+
+  // Simple SVG radial gauge (no libs)
+  function gaugeSVG(pct, label){
+    const p = clamp(Number(pct ?? 0), 0, 100);
+    const r = 28;
+    const cx = 32, cy = 32;
+    const startAngle = -210;  // degrees
+    const endAngle = 30;      // degrees (sweep 240)
+    const sweep = endAngle - startAngle; // 240
+    const a = startAngle + (sweep * (p / 100));
+
+    function polarToXY(angleDeg){
+      const rad = (Math.PI / 180) * angleDeg;
+      return [cx + r * Math.cos(rad), cy + r * Math.sin(rad)];
+    }
+
+    const [sx, sy] = polarToXY(startAngle);
+    const [ex, ey] = polarToXY(endAngle);
+    const [px, py] = polarToXY(a);
+
+    const largeArc = 1; // because 240 > 180 (for background)
+    const bgPath = `M ${sx} ${sy} A ${r} ${r} 0 ${largeArc} 1 ${ex} ${ey}`;
+
+    // For progress arc, determine if > 180
+    const progSweep = sweep * (p/100);
+    const progLarge = progSweep > 180 ? 1 : 0;
+    const progPath = `M ${sx} ${sy} A ${r} ${r} 0 ${progLarge} 1 ${px} ${py}`;
+
+    const col = colorForPct(p);
+
+    // HA-ish subtle glow via SVG filter
+    const id = `g${Math.random().toString(16).slice(2)}`;
+
+    return `
+      <svg width="76" height="76" viewBox="0 0 64 64" aria-label="${escapeHtml(label)} gauge">
+        <defs>
+          <filter id="${id}" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur stdDeviation="2.2" result="blur"/>
+            <feColorMatrix
+              in="blur"
+              type="matrix"
+              values="1 0 0 0 0
+                      0 1 0 0 0
+                      0 0 1 0 0
+                      0 0 0 0.55 0"
+              result="glow"
+            />
+            <feMerge>
+              <feMergeNode in="glow"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        </defs>
+
+        <path d="${bgPath}" stroke="rgba(255,255,255,0.10)" stroke-width="7.5" fill="none" stroke-linecap="round"/>
+        <path d="${progPath}" stroke="${col}" stroke-width="7.5" fill="none" stroke-linecap="round" filter="url(#${id})"/>
+
+        <circle cx="32" cy="34" r="18" fill="rgba(12,14,18,0.55)" stroke="rgba(255,255,255,0.06)"/>
+        <text x="32" y="35" text-anchor="middle" font-size="11" fill="rgba(231,234,240,0.92)" font-weight="800">${p.toFixed(0)}%</text>
+        <text x="32" y="49" text-anchor="middle" font-size="8.5" fill="rgba(168,176,192,0.92)" font-weight="600">${escapeHtml(label)}</text>
+      </svg>
+    `;
   }
 
   async function fetchStacks() {
-    statusEl.textContent = 'Loading…';
-    statusEl.className = 'muted';
+    statusPill.textContent = 'Loading…';
+    statusPill.style.borderColor = 'rgba(255,255,255,0.10)';
+
     try {
-      const res = await fetch('/api/stacks');
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const res = await fetch('/api/stacks', { cache: 'no-store' });
       const data = await res.json();
-      render(data.stacks || []);
+      if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
+
       const dt = new Date((data.updated_at || Date.now()/1000) * 1000);
-      statusEl.textContent = `Updated: ${dt.toLocaleString()}`;
+      const err = data.cache_error ? ` • cache error: ${data.cache_error}` : '';
+      statusPill.textContent = `Updated ${dt.toLocaleTimeString()}${err}`;
+
+      render(data.stacks || []);
     } catch (e) {
-      statusEl.textContent = `Error: ${e}`;
-      statusEl.className = 'muted error';
-      grid.innerHTML = '';
+      statusPill.textContent = `Error: ${e}`;
+      statusPill.style.borderColor = 'rgba(255,92,122,0.45)';
+      grid.innerHTML = `<div class="empty">Could not load stacks.<br/><span style="color:var(--muted)">${escapeHtml(e)}</span></div>`;
     }
   }
 
   async function restartProject(project) {
-    if (!confirm(`Restart stack "${project}"? This restarts all containers in that compose project.`)) return;
+    if (!confirm(`Restart stack "${project}"?\nThis restarts all containers in that compose project.`)) return;
 
-    statusEl.textContent = `Restarting ${project}…`;
-    statusEl.className = 'muted';
+    statusPill.textContent = `Restarting ${project}…`;
+    statusPill.style.borderColor = 'rgba(255,209,102,0.35)';
 
     try {
       const res = await fetch(`/api/stacks/${encodeURIComponent(project)}/restart`, { method: 'POST' });
       const out = await res.json();
       if (!res.ok) throw new Error(out.detail || `HTTP ${res.status}`);
+
       const errCount = (out.errors || []).length;
       alert(`Restarted: ${(out.restarted || []).length} container(s)\nErrors: ${errCount}`);
     } catch (e) {
@@ -97,63 +418,143 @@
       await fetchStacks();
     }
   }
+  window.restartProject = restartProject;
+
+  function statusClass(s){
+    const x = String(s || '').toLowerCase();
+    if (x.includes('running')) return 'running';
+    if (x.includes('restart')) return 'restarting';
+    return 'stopped';
+  }
+
+  function memPct(memUsage, memLimit){
+    if (!memLimit || memLimit <= 0) return null;
+    return clamp((memUsage / memLimit) * 100, 0, 100);
+  }
 
   function render(stacks) {
-    if (!stacks.length) {
-      grid.innerHTML = `<div class="card">No Compose-labeled containers found.</div>`;
+    const q = (filterEl.value || '').trim().toLowerCase();
+    const filtered = stacks.filter(s => String(s.project || '').toLowerCase().includes(q));
+
+    if (!filtered.length) {
+      grid.innerHTML = `<div class="empty">No stacks match “${escapeHtml(filterEl.value || '')}”.</div>`;
       return;
     }
 
-    grid.innerHTML = stacks.map(s => {
+    grid.innerHTML = filtered.map(s => {
       const t = s.totals || {};
       const containers = s.containers || [];
-      const memLine = t.mem_limit ? `${fmtBytes(t.mem_usage)} / ${fmtBytes(t.mem_limit)}` : fmtBytes(t.mem_usage);
+
+      const cpu = Number(t.cpu_percent ?? 0);
+      const memUsage = Number(t.mem_usage ?? 0);
+      const memLimit = Number(t.mem_limit ?? 0);
+      const mp = memPct(memUsage, memLimit);
+      const memLine = memLimit ? `${fmtBytes(memUsage)} / ${fmtBytes(memLimit)}` : fmtBytes(memUsage);
+
+      const netLine = `↓ ${fmtBytes(t.net_rx)}  ↑ ${fmtBytes(t.net_tx)}`;
+      const diskLine = `R ${fmtBytes(t.blk_read)}  W ${fmtBytes(t.blk_write)}`;
 
       return `
         <div class="card">
-          <div class="title">
-            <div>
-              <div><strong>${escapeHtml(s.project)}</strong> <span class="pill">${containers.length} container(s)</span></div>
-              <div class="muted">CPU Σ: ${fmtPct(t.cpu_percent)} · Mem: ${memLine}</div>
-              <div class="muted">Net: ↓ ${fmtBytes(t.net_rx)} · ↑ ${fmtBytes(t.net_tx)} · Disk: R ${fmtBytes(t.blk_read)} · W ${fmtBytes(t.blk_write)}</div>
+          <div class="cardHeader">
+            <div class="stackTitle">
+              <div class="stackName">
+                <strong title="${escapeHtml(s.project)}">${escapeHtml(s.project)}</strong>
+                <span class="chip">${containers.length} containers</span>
+              </div>
+              <div class="metaRow">
+                <span>CPU Σ <b style="color:var(--text)">${fmtPct(cpu)}</b></span>
+                <span>Mem <b style="color:var(--text)">${escapeHtml(memLine)}</b></span>
+              </div>
             </div>
             <div>
-              <button onclick="restartProject('${escapeHtml(s.project)}')">Restart stack</button>
+              <button onclick="restartProject('${escapeHtml(s.project)}')">Restart</button>
             </div>
           </div>
 
-          <table>
-            <thead>
-              <tr>
-                <th>Service</th>
-                <th>Name</th>
-                <th>Status</th>
-                <th class="right">CPU</th>
-                <th class="right">Mem</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${containers.map(c => {
-                const st = c.stats;
-                const mem = st?.mem_limit ? `${fmtBytes(st.mem_usage)} / ${fmtBytes(st.mem_limit)}` : fmtBytes(st?.mem_usage);
-                return `
-                  <tr>
-                    <td>${escapeHtml(c.service || '')}</td>
-                    <td class="mono">${escapeHtml(c.name)}</td>
-                    <td>${escapeHtml(c.status)}</td>
-                    <td class="right">${st ? fmtPct(st.cpu_percent) : '-'}</td>
-                    <td class="right">${st ? mem : '-'}</td>
-                  </tr>
-                `;
-              }).join('')}
-            </tbody>
-          </table>
+          <div class="cardBody">
+            <div class="gauges">
+              <div class="gaugeRow">
+                ${gaugeSVG(clamp(cpu,0,100), 'CPU')}
+                <div class="gaugeLabel">
+                  <div class="k">CPU usage (sum)</div>
+                  <div class="v">${fmtPct(cpu)} <span style="color:var(--muted); font-weight:600">across containers</span></div>
+                </div>
+              </div>
+
+              <div class="gaugeRow">
+                ${gaugeSVG(mp ?? 0, 'MEM')}
+                <div class="gaugeLabel">
+                  <div class="k">Memory usage</div>
+                  <div class="v">${escapeHtml(memLine)} ${mp != null ? `<span style="color:var(--muted); font-weight:600">(${mp.toFixed(0)}%)</span>` : ''}</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ioGrid">
+              <div class="metric">
+                <div class="k">Network</div>
+                <div class="v">${escapeHtml(netLine)}</div>
+              </div>
+              <div class="metric">
+                <div class="k">Disk I/O</div>
+                <div class="v">${escapeHtml(diskLine)}</div>
+              </div>
+              <div class="metric">
+                <div class="k">Services</div>
+                <div class="v">${escapeHtml([...new Set(containers.map(c => c.service).filter(Boolean))].length)} </div>
+              </div>
+              <div class="metric">
+                <div class="k">Running</div>
+                <div class="v">${escapeHtml(containers.filter(c => String(c.status||'').toLowerCase().includes('running')).length)} / ${containers.length}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="tableWrap">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width: 22%;">Service</th>
+                  <th>Name</th>
+                  <th style="width: 20%;">Status</th>
+                  <th class="right" style="width: 14%;">CPU</th>
+                  <th class="right" style="width: 18%;">Mem</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${containers.map(c => {
+                  const st = c.stats;
+                  const cCpu = st ? Number(st.cpu_percent ?? 0) : null;
+                  const cMem = st ? Number(st.mem_usage ?? 0) : null;
+                  const cLim = st ? Number(st.mem_limit ?? 0) : null;
+                  const cMemLine = st ? (cLim ? `${fmtBytes(cMem)} / ${fmtBytes(cLim)}` : fmtBytes(cMem)) : '—';
+                  const dot = statusClass(c.status);
+                  return `
+                    <tr>
+                      <td>${escapeHtml(c.service || '')}</td>
+                      <td class="mono">${escapeHtml(c.name)}</td>
+                      <td>
+                        <span class="statusDot ${dot}"></span>
+                        ${escapeHtml(c.status)}
+                      </td>
+                      <td class="right">${st ? fmtPct(cCpu) : '—'}</td>
+                      <td class="right">${escapeHtml(cMemLine)}</td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
         </div>
       `;
     }).join('');
   }
 
   refreshBtn.addEventListener('click', fetchStacks);
+  filterEl.addEventListener('input', () => fetchStacks());
 
   let timer = null;
   function setAutoRefresh() {
@@ -162,9 +563,6 @@
     if (sec > 0) timer = setInterval(fetchStacks, sec * 1000);
   }
   autoRefresh.addEventListener('change', setAutoRefresh);
-
-  // Expose for inline onclick
-  window.restartProject = restartProject;
 
   setAutoRefresh();
   fetchStacks();
