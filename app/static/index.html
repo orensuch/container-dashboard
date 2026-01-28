@@ -8,7 +8,6 @@
     :root{
       --bg: #0f1115;
       --panel: #171a21;
-      --panel-2: #1c2030;
       --text: #e7eaf0;
       --muted: #a8b0c0;
       --border: rgba(255,255,255,0.08);
@@ -26,51 +25,62 @@
     }
 
     * { box-sizing: border-box; }
+    html, body { width: 100%; overflow-x: hidden; }
+
     body{
       margin: 0;
-      background: radial-gradient(1200px 600px at 20% 0%, rgba(122,162,255,0.18), transparent 60%),
-                  radial-gradient(900px 500px at 90% 30%, rgba(155,219,255,0.12), transparent 55%),
-                  var(--bg);
+      background:
+        radial-gradient(1200px 600px at 20% 0%, rgba(122,162,255,0.18), transparent 60%),
+        radial-gradient(900px 500px at 90% 30%, rgba(155,219,255,0.12), transparent 55%),
+        var(--bg);
       color: var(--text);
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, sans-serif;
     }
 
-    .wrap{ max-width: 1180px; margin: 0 auto; padding: 18px; }
+    .wrap{
+      width: 100%;
+      max-width: 2000px;
+      margin: 0 auto;
+      padding: 14px;
+    }
 
     header{
       display:flex; align-items:center; justify-content:space-between;
-      gap: 12px; flex-wrap: wrap;
-      margin-bottom: 14px;
+      gap: 10px; flex-wrap: wrap;
+      margin-bottom: 12px;
     }
 
-    .brand{
-      display:flex; align-items:center; gap: 12px;
-    }
-
+    .brand{ display:flex; align-items:center; gap: 10px; }
     .logo{
-      width: 38px; height: 38px; border-radius: 12px;
+      width: 34px; height: 34px; border-radius: 12px;
       background: linear-gradient(135deg, rgba(122,162,255,0.95), rgba(155,219,255,0.95));
       box-shadow: 0 10px 25px rgba(122,162,255,0.25);
       display:grid; place-items:center;
       color: #0b0d12;
-      font-weight: 800;
+      font-weight: 900;
+      font-size: 13px;
+      flex: 0 0 auto;
     }
 
-    h1{ font-size: 16px; margin: 0; letter-spacing: 0.2px; }
+    h1{ font-size: 15px; margin: 0; letter-spacing: 0.2px; }
     .subtitle{ margin: 0; color: var(--muted); font-size: 12px; }
 
     .toolbar{
-      display:flex; gap: 10px; align-items:center; flex-wrap: wrap;
+      display:flex; gap: 8px; align-items:center; flex-wrap: wrap;
     }
 
     .pill{
       display:inline-flex; align-items:center; gap: 8px;
-      padding: 8px 10px;
+      padding: 7px 10px;
       border-radius: 999px;
       background: rgba(255,255,255,0.04);
       border: 1px solid var(--border);
       color: var(--muted);
       font-size: 12px;
+      max-width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     button{
@@ -78,12 +88,12 @@
       border: 1px solid var(--border);
       background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
       color: var(--text);
-      padding: 9px 12px;
+      padding: 8px 10px;
       border-radius: 12px;
       cursor: pointer;
       box-shadow: 0 8px 18px rgba(0,0,0,0.25);
-      transition: transform 0.08s ease, border-color 0.2s ease, background 0.2s ease;
-      font-weight: 600;
+      transition: transform 0.08s ease, border-color 0.2s ease;
+      font-weight: 700;
       font-size: 13px;
     }
     button:hover{ transform: translateY(-1px); border-color: rgba(122,162,255,0.35); }
@@ -93,16 +103,18 @@
       border: 1px solid var(--border);
       background: rgba(255,255,255,0.03);
       color: var(--text);
-      padding: 9px 10px;
+      padding: 8px 10px;
       border-radius: 12px;
       outline: none;
       font-size: 13px;
+      max-width: 100%;
     }
 
     .grid{
       display:grid;
-      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
-      gap: 14px;
+      grid-template-columns: repeat(auto-fit, minmax(clamp(260px, 35vw, 400px), 1fr));
+      gap: 12px;
+      width: 100%;
     }
 
     .card{
@@ -111,22 +123,17 @@
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       overflow: hidden;
+      min-width: 0;
+       container-type: inline-size;   /* enables @container queries */
+  container-name: stackcard;
     }
-
     .cardHeader{
-      padding: 14px 14px 10px 14px;
-      display:flex; justify-content:space-between; gap: 12px; align-items:flex-start;
+      padding: 10px 10px 6px 10px;
+      display:flex; justify-content:space-between; gap: 10px; align-items:flex-start;
     }
 
-    .stackTitle{
-      display:flex; flex-direction:column; gap: 6px;
-      min-width: 0;
-    }
-
-    .stackName{
-      display:flex; align-items:center; gap: 10px;
-      min-width: 0;
-    }
+    .stackTitle{ display:flex; flex-direction:column; gap: 6px; min-width: 0; }
+    .stackName{ display:flex; align-items:center; gap: 8px; min-width: 0; }
 
     .stackName strong{
       font-size: 14px;
@@ -134,6 +141,7 @@
       overflow: hidden;
       text-overflow: ellipsis;
       letter-spacing: 0.2px;
+      max-width: 100%;
     }
 
     .chip{
@@ -145,84 +153,135 @@
       color: var(--accent2);
       font-size: 12px;
       white-space: nowrap;
-    }
-
-    .metaRow{
-      display:flex; gap: 10px; flex-wrap: wrap;
-      color: var(--muted);
-      font-size: 12px;
-    }
-
-    .metaRow span{
-      display:inline-flex; gap: 6px; align-items:center;
-      padding: 4px 8px;
-      border-radius: 10px;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.05);
+      flex: 0 0 auto;
     }
 
     .cardBody{
-      padding: 12px 14px 14px 14px;
-      display:grid;
-      grid-template-columns: 160px 1fr;
-      gap: 12px;
-      align-items: center;
-    }
-
-    .gauges{
-      display:grid;
+      padding: 8px 10px 10px 10px;
+      display: grid;
       grid-template-columns: 1fr;
-      gap: 10px;
+      gap: 8px;
     }
 
-    .gaugeRow{
-      display:grid;
-      grid-template-columns: 76px 1fr;
-      gap: 12px;
+    /* Compact gauge row: two mini blocks side-by-side */
+    .gaugesInline{
+      display:flex;
+      align-items:stretch;
+      justify-content:space-between;
+      gap: 8px;
+      min-width: 0;
+      width: 100%;
+    }
+
+    .gaugeMini{
+      display:flex;
       align-items:center;
-    }
-
-    .gaugeLabel{
-      display:flex; flex-direction:column; gap: 2px;
-    }
-    .gaugeLabel .k{ font-size: 12px; color: var(--muted); }
-    .gaugeLabel .v{ font-size: 13px; font-weight: 700; }
-
-    .ioGrid{
-      display:grid;
-      grid-template-columns: repeat(2, minmax(0,1fr));
       gap: 10px;
-    }
-
-    .metric{
-      padding: 10px 10px;
+      min-width: 0;
+      padding: 8px 10px;
       border-radius: 14px;
       background: rgba(12,14,18,0.45);
       border: 1px solid rgba(255,255,255,0.06);
+      flex: 1;
+      overflow: hidden;
     }
-    .metric .k{ font-size: 12px; color: var(--muted); display:flex; align-items:center; gap:6px; }
-    .metric .v{ margin-top: 6px; font-weight: 800; font-size: 14px; letter-spacing: 0.2px; }
+
+    .gaugeMini .txt{ display:flex; flex-direction:column; gap: 2px; min-width: 0; }
+    .gaugeMini .txt .k{
+      font-size: 12px; color: var(--muted); font-weight: 700; letter-spacing: 0.02em;
+    }
+.gaugeMini .txt .v{
+  font-size: 13px;
+  font-weight: 900;
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: unset;
+}
+
+    /* Compact metrics row */
+    .ioGrid{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      min-width: 0;
+      width: 100%;
+    }
+
+    .metric{
+      padding: 8px 8px;
+      border-radius: 14px;
+      background: rgba(12,14,18,0.45);
+      border: 1px solid rgba(255,255,255,0.06);
+      min-width: 0;
+      overflow: hidden;
+    }
+    .metric .k{ font-size: 12px; color: var(--muted); font-weight: 700; }
+    .metric .v{
+      margin-top: 6px;
+      font-weight: 900;
+      font-size: 13px;
+      letter-spacing: 0.2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
 
     .divider{
       height: 1px;
       background: rgba(255,255,255,0.06);
-      margin: 0 14px;
+      margin: 0 10px;
     }
 
-    .tableWrap{ padding: 10px 14px 14px 14px; }
-    table{
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
+    /* Expandable container list */
+    .expandToggle{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      cursor:pointer;
+      user-select:none;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      padding: 9px 10px;
     }
+    .expandToggle:hover{ color: var(--text); }
+
+    .chevron{ transition: transform 0.2s ease; }
+
+    .card.expanded .chevron{ transform: rotate(90deg); }
+
+    .containerSection{
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease, opacity 0.25s ease;
+      opacity: 0;
+    }
+    .card.expanded .containerSection{
+      max-height: 1400px;
+      opacity: 1;
+    }
+
+    .tableWrap{ padding: 8px 10px 10px 10px; }
+    table{ width: 100%; border-collapse: collapse; font-size: 13px; }
     th, td{
-      padding: 8px 8px;
+      padding: 7px 8px;
       border-top: 1px solid rgba(255,255,255,0.06);
       vertical-align: middle;
     }
-    th{ color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; }
-    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; font-size: 12px; color: rgba(231,234,240,0.92); }
+    th{
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .mono{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 12px;
+      color: rgba(231,234,240,0.92);
+    }
     .right{ text-align: right; }
+
     .statusDot{
       display:inline-block; width: 8px; height: 8px; border-radius: 50%;
       margin-right: 8px; vertical-align: middle;
@@ -233,18 +292,37 @@
     .restarting{ background: var(--warn); box-shadow: 0 0 0 3px rgba(255,209,102,0.14); }
 
     .empty{
-      padding: 16px;
+      padding: 14px;
       color: var(--muted);
       border: 1px dashed rgba(255,255,255,0.14);
       border-radius: var(--radius);
       text-align:center;
     }
 
-    /* Small screens */
     @media (max-width: 520px){
-      .cardBody{ grid-template-columns: 1fr; }
-      .gaugeRow{ grid-template-columns: 76px 1fr; }
+      .gaugesInline{ flex-direction: row; }
     }
+    /* Default table spacing (normal) */
+.tableWrap th, .tableWrap td { padding: 7px 8px; }
+.tableWrap th { font-size: 11px; }
+.tableWrap td { font-size: 13px; }
+
+/* When the CARD is narrow, make the container list compact */
+@container stackcard (max-width: 330px) {
+  .tableWrap { padding: 6px 8px 8px 8px; }
+  .tableWrap th, .tableWrap td { padding: 6px 6px; }
+  .tableWrap th { font-size: 10px; }
+  .tableWrap td { font-size: 12px; }
+
+  /* Hide less important columns first */
+  .col-service { display: none; }
+}
+
+/* Even narrower: hide CPU too */
+@container stackcard (max-width: 290px) {
+  .col-cpu { display: none; }
+}
+
   </style>
 </head>
 <body>
@@ -254,7 +332,7 @@
         <div class="logo">CD</div>
         <div>
           <h1>Compose Dashboard</h1>
-          <p class="subtitle">Home Assistant–style stack overview + restart</p>
+          <p class="subtitle">Stacks (Compose projects) · gauges · restart</p>
         </div>
       </div>
 
@@ -280,6 +358,40 @@
   const refreshBtn = document.getElementById('refreshBtn');
   const autoRefresh = document.getElementById('autoRefresh');
   const filterEl = document.getElementById('filter');
+
+  let lastStacks = [];
+
+  // Persist expanded cards across refreshes
+  const EXP_KEY = 'composeDashboard.expandedStacks';
+
+  function loadExpandedSet(){
+    try {
+      const raw = localStorage.getItem(EXP_KEY);
+      const arr = raw ? JSON.parse(raw) : [];
+      return new Set(Array.isArray(arr) ? arr : []);
+    } catch {
+      return new Set();
+    }
+  }
+
+  function saveExpandedSet(set){
+    localStorage.setItem(EXP_KEY, JSON.stringify([...set]));
+  }
+
+  function toggleCard(el){
+    const card = el.closest('.card');
+    if (!card) return;
+
+    const project = card.getAttribute('data-project') || '';
+    const expanded = loadExpandedSet();
+
+    card.classList.toggle('expanded');
+    if (card.classList.contains('expanded')) expanded.add(project);
+    else expanded.delete(project);
+
+    saveExpandedSet(expanded);
+  }
+  window.toggleCard = toggleCard;
 
   function fmtBytes(n) {
     if (n == null) return '—';
@@ -309,19 +421,21 @@
   }
 
   function colorForPct(p){
-    // HA-ish: green < 60, warn < 85, red otherwise
-    if (p < 60) return getComputedStyle(document.documentElement).getPropertyValue('--ok').trim();
-    if (p < 85) return getComputedStyle(document.documentElement).getPropertyValue('--warn').trim();
-    return getComputedStyle(document.documentElement).getPropertyValue('--bad').trim();
+    const ok = getComputedStyle(document.documentElement).getPropertyValue('--ok').trim();
+    const warn = getComputedStyle(document.documentElement).getPropertyValue('--warn').trim();
+    const bad = getComputedStyle(document.documentElement).getPropertyValue('--bad').trim();
+    if (p < 60) return ok;
+    if (p < 85) return warn;
+    return bad;
   }
 
-  // Simple SVG radial gauge (no libs)
+  // Smaller radial gauge SVG (64x64)
   function gaugeSVG(pct, label){
     const p = clamp(Number(pct ?? 0), 0, 100);
     const r = 28;
     const cx = 32, cy = 32;
-    const startAngle = -210;  // degrees
-    const endAngle = 30;      // degrees (sweep 240)
+    const startAngle = -210;
+    const endAngle = 30;
     const sweep = endAngle - startAngle; // 240
     const a = startAngle + (sweep * (p / 100));
 
@@ -334,21 +448,16 @@
     const [ex, ey] = polarToXY(endAngle);
     const [px, py] = polarToXY(a);
 
-    const largeArc = 1; // because 240 > 180 (for background)
-    const bgPath = `M ${sx} ${sy} A ${r} ${r} 0 ${largeArc} 1 ${ex} ${ey}`;
-
-    // For progress arc, determine if > 180
+    const bgPath = `M ${sx} ${sy} A ${r} ${r} 0 1 1 ${ex} ${ey}`;
     const progSweep = sweep * (p/100);
     const progLarge = progSweep > 180 ? 1 : 0;
     const progPath = `M ${sx} ${sy} A ${r} ${r} 0 ${progLarge} 1 ${px} ${py}`;
 
     const col = colorForPct(p);
-
-    // HA-ish subtle glow via SVG filter
     const id = `g${Math.random().toString(16).slice(2)}`;
 
     return `
-      <svg width="76" height="76" viewBox="0 0 64 64" aria-label="${escapeHtml(label)} gauge">
+      <svg width="64" height="64" viewBox="0 0 64 64" aria-label="${escapeHtml(label)} gauge">
         <defs>
           <filter id="${id}" x="-40%" y="-40%" width="180%" height="180%">
             <feGaussianBlur stdDeviation="2.2" result="blur"/>
@@ -372,31 +481,22 @@
         <path d="${progPath}" stroke="${col}" stroke-width="7.5" fill="none" stroke-linecap="round" filter="url(#${id})"/>
 
         <circle cx="32" cy="34" r="18" fill="rgba(12,14,18,0.55)" stroke="rgba(255,255,255,0.06)"/>
-        <text x="32" y="35" text-anchor="middle" font-size="11" fill="rgba(231,234,240,0.92)" font-weight="800">${p.toFixed(0)}%</text>
-        <text x="32" y="49" text-anchor="middle" font-size="8.5" fill="rgba(168,176,192,0.92)" font-weight="600">${escapeHtml(label)}</text>
+        <text x="32" y="35" text-anchor="middle" font-size="11" fill="rgba(231,234,240,0.92)" font-weight="900">${p.toFixed(0)}%</text>
+        <text x="32" y="49" text-anchor="middle" font-size="8.5" fill="rgba(168,176,192,0.92)" font-weight="800">${escapeHtml(label)}</text>
       </svg>
     `;
   }
 
-  async function fetchStacks() {
-    statusPill.textContent = 'Loading…';
-    statusPill.style.borderColor = 'rgba(255,255,255,0.10)';
+  function statusClass(s){
+    const x = String(s || '').toLowerCase();
+    if (x.includes('running')) return 'running';
+    if (x.includes('restart')) return 'restarting';
+    return 'stopped';
+  }
 
-    try {
-      const res = await fetch('/api/stacks', { cache: 'no-store' });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
-
-      const dt = new Date((data.updated_at || Date.now()/1000) * 1000);
-      const err = data.cache_error ? ` • cache error: ${data.cache_error}` : '';
-      statusPill.textContent = `Updated ${dt.toLocaleTimeString()}${err}`;
-
-      render(data.stacks || []);
-    } catch (e) {
-      statusPill.textContent = `Error: ${e}`;
-      statusPill.style.borderColor = 'rgba(255,92,122,0.45)';
-      grid.innerHTML = `<div class="empty">Could not load stacks.<br/><span style="color:var(--muted)">${escapeHtml(e)}</span></div>`;
-    }
+  function memPct(memUsage, memLimit){
+    if (!memLimit || memLimit <= 0) return null;
+    return clamp((memUsage / memLimit) * 100, 0, 100);
   }
 
   async function restartProject(project) {
@@ -420,16 +520,26 @@
   }
   window.restartProject = restartProject;
 
-  function statusClass(s){
-    const x = String(s || '').toLowerCase();
-    if (x.includes('running')) return 'running';
-    if (x.includes('restart')) return 'restarting';
-    return 'stopped';
-  }
+  async function fetchStacks() {
+    statusPill.textContent = 'Loading…';
+    statusPill.style.borderColor = 'rgba(255,255,255,0.10)';
 
-  function memPct(memUsage, memLimit){
-    if (!memLimit || memLimit <= 0) return null;
-    return clamp((memUsage / memLimit) * 100, 0, 100);
+    try {
+      const res = await fetch('/api/stacks', { cache: 'no-store' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
+
+      const dt = new Date((data.updated_at || Date.now()/1000) * 1000);
+      const err = data.cache_error ? ` • cache error: ${data.cache_error}` : '';
+      statusPill.textContent = `Updated ${dt.toLocaleTimeString()}${err}`;
+
+      lastStacks = data.stacks || [];
+      render(lastStacks);
+    } catch (e) {
+      statusPill.textContent = `Error: ${e}`;
+      statusPill.style.borderColor = 'rgba(255,92,122,0.45)';
+      grid.innerHTML = `<div class="empty">Could not load stacks.<br/><span style="color:var(--muted)">${escapeHtml(e)}</span></div>`;
+    }
   }
 
   function render(stacks) {
@@ -441,6 +551,8 @@
       return;
     }
 
+    const expanded = loadExpandedSet();
+
     grid.innerHTML = filtered.map(s => {
       const t = s.totals || {};
       const containers = s.containers || [];
@@ -449,44 +561,43 @@
       const memUsage = Number(t.mem_usage ?? 0);
       const memLimit = Number(t.mem_limit ?? 0);
       const mp = memPct(memUsage, memLimit);
-      const memLine = memLimit ? `${fmtBytes(memUsage)} / ${fmtBytes(memLimit)}` : fmtBytes(memUsage);
+      const memLine = fmtBytes(memUsage);
 
       const netLine = `↓ ${fmtBytes(t.net_rx)}  ↑ ${fmtBytes(t.net_tx)}`;
       const diskLine = `R ${fmtBytes(t.blk_read)}  W ${fmtBytes(t.blk_write)}`;
 
+      const project = String(s.project || '');
+      const isExpanded = expanded.has(project);
+
       return `
-        <div class="card">
+        <div class="card ${isExpanded ? 'expanded' : ''}" data-project="${escapeHtml(project)}">
           <div class="cardHeader">
             <div class="stackTitle">
               <div class="stackName">
-                <strong title="${escapeHtml(s.project)}">${escapeHtml(s.project)}</strong>
+                <strong title="${escapeHtml(project)}">${escapeHtml(project)}</strong>
                 <span class="chip">${containers.length} containers</span>
-              </div>
-              <div class="metaRow">
-                <span>CPU Σ <b style="color:var(--text)">${fmtPct(cpu)}</b></span>
-                <span>Mem <b style="color:var(--text)">${escapeHtml(memLine)}</b></span>
               </div>
             </div>
             <div>
-              <button onclick="restartProject('${escapeHtml(s.project)}')">Restart</button>
+              <button onclick="restartProject('${escapeHtml(project)}')">Restart</button>
             </div>
           </div>
 
           <div class="cardBody">
-            <div class="gauges">
-              <div class="gaugeRow">
+            <div class="gaugesInline">
+              <div class="gaugeMini">
                 ${gaugeSVG(clamp(cpu,0,100), 'CPU')}
-                <div class="gaugeLabel">
-                  <div class="k">CPU usage (sum)</div>
-                  <div class="v">${fmtPct(cpu)} <span style="color:var(--muted); font-weight:600">across containers</span></div>
+                <div class="txt">
+                  <div class="k">CPU</div>
+                  <div class="v">${fmtPct(cpu)}</div>
                 </div>
               </div>
 
-              <div class="gaugeRow">
+              <div class="gaugeMini">
                 ${gaugeSVG(mp ?? 0, 'MEM')}
-                <div class="gaugeLabel">
-                  <div class="k">Memory usage</div>
-                  <div class="v">${escapeHtml(memLine)} ${mp != null ? `<span style="color:var(--muted); font-weight:600">(${mp.toFixed(0)}%)</span>` : ''}</div>
+                <div class="txt">
+                  <div class="k">Memory</div>
+                  <div class="v">${escapeHtml(memLine)}${mp != null ? ` • ${mp.toFixed(0)}%` : ''}</div>
                 </div>
               </div>
             </div>
@@ -500,61 +611,63 @@
                 <div class="k">Disk I/O</div>
                 <div class="v">${escapeHtml(diskLine)}</div>
               </div>
-              <div class="metric">
-                <div class="k">Services</div>
-                <div class="v">${escapeHtml([...new Set(containers.map(c => c.service).filter(Boolean))].length)} </div>
-              </div>
-              <div class="metric">
-                <div class="k">Running</div>
-                <div class="v">${escapeHtml(containers.filter(c => String(c.status||'').toLowerCase().includes('running')).length)} / ${containers.length}</div>
-              </div>
             </div>
           </div>
 
           <div class="divider"></div>
 
-          <div class="tableWrap">
-            <table>
-              <thead>
-                <tr>
-                  <th style="width: 22%;">Service</th>
-                  <th>Name</th>
-                  <th style="width: 20%;">Status</th>
-                  <th class="right" style="width: 14%;">CPU</th>
-                  <th class="right" style="width: 18%;">Mem</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${containers.map(c => {
-                  const st = c.stats;
-                  const cCpu = st ? Number(st.cpu_percent ?? 0) : null;
-                  const cMem = st ? Number(st.mem_usage ?? 0) : null;
-                  const cLim = st ? Number(st.mem_limit ?? 0) : null;
-                  const cMemLine = st ? (cLim ? `${fmtBytes(cMem)} / ${fmtBytes(cLim)}` : fmtBytes(cMem)) : '—';
-                  const dot = statusClass(c.status);
-                  return `
-                    <tr>
-                      <td>${escapeHtml(c.service || '')}</td>
-                      <td class="mono">${escapeHtml(c.name)}</td>
-                      <td>
-                        <span class="statusDot ${dot}"></span>
-                        ${escapeHtml(c.status)}
-                      </td>
-                      <td class="right">${st ? fmtPct(cCpu) : '—'}</td>
-                      <td class="right">${escapeHtml(cMemLine)}</td>
-                    </tr>
-                  `;
-                }).join('')}
-              </tbody>
-            </table>
+          <div class="expandToggle" onclick="toggleCard(this)">
+            <span class="chevron">▸</span>
+            <span>Containers (${containers.length})</span>
+          </div>
+
+          <div class="containerSection">
+            <div class="tableWrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th class="col-service" style="width: 22%;">Service</th>
+                    
+                    <th class="col-status" style="width: 20%;">Status</th>
+                    <th class="col-cpu right" style="width: 14%;">CPU</th>
+                    <th class="col-mem right" style="width: 18%;">Mem</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${containers.map(c => {
+                    const st = c.stats;
+                    const cCpu = st ? Number(st.cpu_percent ?? 0) : null;
+                    const cMem = st ? Number(st.mem_usage ?? 0) : null;
+                    const cLim = st ? Number(st.mem_limit ?? 0) : null;
+                    const cMemLine = st
+                      ? (cLim ? `${fmtBytes(cMem)} ` : fmtBytes(cMem))
+                      : '—';
+                    const dot = statusClass(c.status);
+                    return `
+                      <tr>
+                        <td>${escapeHtml(c.service || '')}</td>
+                        
+                        <td>
+                          <span class="statusDot ${dot}"></span>
+                          ${escapeHtml(c.status)}
+                        </td>
+                        <td class="right">${st ? fmtPct(cCpu) : '—'}</td>
+                        <td class="right">${escapeHtml(cMemLine)}</td>
+                      </tr>
+                    `;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       `;
     }).join('');
   }
 
+  // Filter should not refetch; just re-render cached data
+  filterEl.addEventListener('input', () => render(lastStacks));
   refreshBtn.addEventListener('click', fetchStacks);
-  filterEl.addEventListener('input', () => fetchStacks());
 
   let timer = null;
   function setAutoRefresh() {
